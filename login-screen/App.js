@@ -12,7 +12,9 @@ export default function App() {
       <View style={{
         width: "100%"
       }}>
-        <View>
+        <View style={{
+          marginBottom: 16
+        }}>
           <Text 
           style={{
             textAlign: "center",
