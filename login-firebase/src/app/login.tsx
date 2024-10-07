@@ -1,22 +1,27 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { getLogin } from '../service/getLogin';
 import { router } from 'expo-router';
 import { FirebaseError } from 'firebase/app';
+import { AuthContext } from '../contexts/auth-context';
 
 export default function LoginScreen() {
+
+  const {setUser} = useContext(AuthContext)
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<{message: string} | FirebaseError | null>(null)
 
   const handleLogin = () => {
     if (email === '' || password === '') {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos');
+      setError({
+        message: 'Por favor, preencha todos os campos'
+      });
       return
     }       
-      // Lógica de login pode ser implementada aqui
-      Alert.alert('Login', `Email: ${email}\nSenha: ${password}`);
-      getLogin(email, password).then(user => {
+      getLogin({email, password}).then(user => {
+        setUser(user)
         router.replace("/home")
       })
       .catch(error => {

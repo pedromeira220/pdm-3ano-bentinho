@@ -4,19 +4,23 @@ import { getLogin } from '../service/getLogin';
 import { router } from 'expo-router';
 import { FirebaseError } from 'firebase/app';
 import { createUser } from '../service/createUser';
+import { doc, setDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
   const [error, setError] = useState<{ message: string } | FirebaseError | null>(null)
 
   const handleRegister = () => {
-    if (email === '' || password === '' || confirmPassword == "") {
+    if (email === '' || password === '' || confirmPassword === '' || fullName === '' || birthDate === '') {
       setError({
         message: 'Por favor, preencha todos os campos'
-      })
-      return
+      });
+      return;
     }
 
     if (password !== confirmPassword) {
@@ -26,7 +30,14 @@ export default function RegisterScreen() {
       return
     }
 
-    createUser(email, password).then(user => {
+    createUser({email, password}).then(user => {
+      return setDoc(doc(db, "users", user.uid), {
+        fullName: fullName,
+        birthDate: birthDate,
+        email: email,
+      })
+    })
+    .then(() => {
       router.replace("/login")
     })
       .catch(error => {
@@ -40,13 +51,25 @@ export default function RegisterScreen() {
         setError({
           message: error.message
         })
-
       })
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Criar conta</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Nome completo"
+        value={fullName}
+        onChangeText={setFullName}
+      />
+
+      <TextInput
+        style={styles.input}
+        placeholder="Data de nascimento (DD/MM/AAAA)"
+        value={birthDate}
+        onChangeText={setBirthDate}
+      />
       <TextInput
         style={styles.input}
         placeholder="Email"
@@ -69,7 +92,7 @@ export default function RegisterScreen() {
         onChangeText={setConfirmPassword}
         secureTextEntry
       />
-      <Button title="Entrar" onPress={handleRegister} />
+      <Button title="Criar conta" onPress={handleRegister} />
       <View>
 
         <TouchableOpacity

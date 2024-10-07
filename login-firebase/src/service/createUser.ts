@@ -1,9 +1,14 @@
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
 
-export const createUser = async (email: string, password: string) => {
+interface CreateUserParams {
+  email: string
+  password: string
+}
+
+export const createUser = async ({email,password}: CreateUserParams) => {
   
-  createUserWithEmailAndPassword(auth, email, password)
+  return createUserWithEmailAndPassword(auth, email, password)
     .then(userCredential => {
       return userCredential.user
     })
