@@ -1,50 +1,131 @@
-# Welcome to your Expo app 👋
+## Projeto PDM Firebase Login
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### 1. *Firebase Authentication (Auth)*
+Firebase Authentication é um serviço que facilita a autenticação de usuários em aplicativos, suportando diversos métodos, como:
 
-## Get started
+- Email e senha.
+- Redes sociais (Google, Facebook, Twitter, GitHub).
+- Autenticação anônima.
+- Autenticação com número de telefone.
 
-1. Install dependencies
+#### Como integrar Firebase Auth:
+1. *Configurar o Firebase no Projeto:*
+   - No [Firebase Console](https://console.firebase.google.com/), crie um novo projeto.
+   - Adicione seu app (Android, iOS ou Web) e obtenha as credenciais (como o arquivo google-services.json ou firebaseConfig para web).
+   - Ative os métodos de autenticação que deseja utilizar em *Authentication* no console do Firebase.
 
-   ```bash
-   npm install
+2. *Instalar o SDK:*
+   - *Web*: 
+     ```html
+     <script src="https://www.gstatic.com/firebasejs/9.x/firebase-auth.js"></script>
+     ```
+   - *Node.js*: 
+     ```bash
+     npm install firebase
+     ```
+
+3. *Código de Autenticação (exemplo para email/senha):*
+   ```javascript
+   import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+   import { initializeApp } from "firebase/app";
+
+   // Configuração do Firebase
+   const firebaseConfig = { /* suas configurações */ };
+   const app = initializeApp(firebaseConfig);
+   const auth = getAuth(app);
+
+   // Registrar novo usuário
+   createUserWithEmailAndPassword(auth, email, password)
+     .then((userCredential) => {
+       const user = userCredential.user;
+       console.log("Usuário registrado:", user);
+     })
+     .catch((error) => {
+       console.error("Erro:", error);
+     });
    ```
 
-2. Start the app
+### 2. *Cloud Firestore*
+Cloud Firestore é um banco de dados NoSQL em tempo real que armazena dados na forma de documentos e coleções, permitindo consultas e sincronizações entre dispositivos.
 
-   ```bash
-    npx expo start
+#### Como integrar Firestore:
+1. *Configurar o Firestore:*
+   - No *Firebase Console, vá para a seção **Firestore Database* e crie o banco de dados.
+   - Escolha entre os modos de segurança: produção ou teste.
+
+2. *Instalar o SDK:*
+   - *Web*:
+     ```html
+     <script src="https://www.gstatic.com/firebasejs/9.x/firebase-firestore.js"></script>
+     ```
+   - *Node.js*:
+     ```bash
+     npm install firebase
+     ```
+
+3. *Código para usar Firestore:*
+   ```javascript
+   import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+   import { initializeApp } from "firebase/app";
+
+   // Configuração do Firebase
+   const firebaseConfig = { /* suas configurações */ };
+   const app = initializeApp(firebaseConfig);
+   const db = getFirestore(app);
+
+   // Adicionar um documento à coleção "users"
+   async function addUser() {
+     try {
+       const docRef = await addDoc(collection(db, "users"), {
+         name: "John Doe",
+         email: "john@example.com"
+       });
+       console.log("Documento adicionado com ID:", docRef.id);
+     } catch (e) {
+       console.error("Erro ao adicionar documento:", e);
+     }
+   }
+
+   // Ler documentos da coleção "users"
+   async function getUsers() {
+     const querySnapshot = await getDocs(collection(db, "users"));
+     querySnapshot.forEach((doc) => {
+       console.log(`${doc.id} => ${doc.data()}`);
+     });
+   }
    ```
 
-In the output, you'll find options to open the app in a
+### 3. *Integração entre Firebase Auth e Firestore*
+Uma abordagem comum é usar o *Firebase Auth* para autenticar usuários e o *Firestore* para armazenar os dados do usuário autenticado.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+#### Exemplo de Integração:
+Quando um novo usuário se registra, seus dados são armazenados no Firestore:
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+```javascript
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, collection, addDoc } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 
-## Get a fresh project
+const firebaseConfig = { /* suas configurações */ };
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+function registerUser(email, password, name) {
+  createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      return addDoc(collection(db, "users"), {
+        uid: user.uid,
+        name: name,
+        email: email
+      });
+    })
+    .then(() => {
+      console.log("Usuário registrado e salvo no Firestore");
+    })
+    .catch((error) => {
+      console.error("Erro:", error);
+    });
+}
 ```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.

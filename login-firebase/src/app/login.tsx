@@ -7,11 +7,11 @@ import { AuthContext } from '../contexts/auth-context';
 
 export default function LoginScreen() {
 
-  const {setUser} = useContext(AuthContext)
+  const { setUser } = useContext(AuthContext)
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<{message: string} | FirebaseError | null>(null)
+  const [error, setError] = useState<{ message: string } | FirebaseError | null>(null)
 
   const handleLogin = () => {
     if (email === '' || password === '') {
@@ -19,13 +19,13 @@ export default function LoginScreen() {
         message: 'Por favor, preencha todos os campos'
       });
       return
-    }       
-      getLogin({email, password}).then(user => {
-        setUser(user)
-        router.replace("/home")
-      })
+    }
+    getLogin({ email, password }).then(user => {
+      setUser(user)
+      router.replace("/home")
+    })
       .catch(error => {
-        if(error instanceof FirebaseError) {
+        if (error instanceof FirebaseError) {
           console.log("> firebase error", error.message);
           Alert.alert('Erro', error.message);
           setError(error)
@@ -35,7 +35,7 @@ export default function LoginScreen() {
         setError({
           message: error.message
         })
-        
+
       })
   };
 
@@ -59,10 +59,10 @@ export default function LoginScreen() {
       />
       <Button title="Entrar" onPress={handleLogin} />
       <View>
-      <TouchableOpacity
-        onPress={() => {
-          router.push("/register")
-        }}
+        <TouchableOpacity
+          onPress={() => {
+            router.push("/register")
+          }}
         >
           <Text style={{
             textAlign: "center",
